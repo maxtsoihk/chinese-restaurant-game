@@ -1,0 +1,334 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#app{font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;padding:12px;min-height:620px}
+.resto-bg{background:#fff8f0;border-radius:16px;padding:14px;border:2px solid #fbbf24}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mission-badge{background:#fef3c7;border:2px solid #fbbf24;border-radius:20px;padding:5px 14px;font-size:14px;font-weight:700;color:#92400e}
+.stats{display:flex;gap:8px}
+.stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:4px 12px;font-size:13px;font-weight:700;color:#374151}
+.stat span{color:#059669}
+.floor-label{text-align:center;font-size:12px;font-weight:700;color:#92400e;letter-spacing:1px;margin-bottom:7px;opacity:.7}
+.seats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}
+.seat{background:#fff;border:2.5px solid #e5e7eb;border-radius:16px;padding:10px;cursor:pointer;transition:all .2s;min-height:110px;position:relative}
+.seat:hover{border-color:#93c5fd;background:#f0f9ff}
+.seat.active{border-color:#3b82f6;background:#eff6ff;box-shadow:0 0 0 3px #bfdbfe}
+.seat.served{border-color:#22c55e;background:#f0fdf4}
+.seat.angry{border-color:#ef4444;background:#fef2f2;animation:ap .5s ease}
+@keyframes ap{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.seat-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.char-emoji{font-size:34px;line-height:1}
+.char-name{font-size:13px;font-weight:700;color:#1f2937}
+.patience-bar-wrap{background:#e5e7eb;border-radius:4px;height:5px;margin-top:3px}
+.patience-bar{height:5px;border-radius:4px;transition:width 1s linear;background:#22c55e}
+.patience-bar.mid{background:#f59e0b}
+.patience-bar.low{background:#ef4444}
+.order-bubble{background:#fef3c7;border:1.5px solid #fcd34d;border-radius:10px;padding:5px 8px;font-size:13px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:5px}
+.served-check{position:absolute;top:8px;right:8px;font-size:20px}
+.math-panel{background:#fff;border:2px solid #c7d2fe;border-radius:16px;padding:14px;margin-bottom:10px}
+.panel-title{font-size:13px;font-weight:700;color:#4338ca;margin-bottom:8px}
+.active-cust{display:flex;align-items:center;gap:8px;background:#eef2ff;border-radius:10px;padding:8px 10px;margin-bottom:10px}
+.active-cust .char{font-size:28px}
+.says{font-size:13px;font-weight:700;color:#1e40af}
+.question-area{text-align:center;margin:8px 0 12px}
+.q-type-badge{display:inline-block;background:#fef3c7;border:1.5px solid #fcd34d;border-radius:12px;padding:3px 12px;font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px}
+.q-main{font-size:32px;font-weight:900;color:#1f2937;margin-bottom:3px;line-height:1.3}
+.q-pinyin{font-size:13px;color:#6b7280;font-weight:600}
+.ans-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ans-btn{padding:10px 6px;border-radius:14px;border:2.5px solid transparent;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center;background:#f9fafb;border-color:#e5e7eb;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ans-btn:hover{transform:scale(1.06);border-color:#93c5fd;background:#eff6ff}
+.ans-btn .big-emoji{font-size:42px;line-height:1}
+.ans-btn .label{font-size:11px;color:#9ca3af;font-weight:600}
+.ans-btn.correct{background:#dcfce7!important;border-color:#22c55e!important;animation:pop .3s ease}
+.ans-btn.wrong{background:#fee2e2!important;border-color:#ef4444!important;animation:wobble .3s ease}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+.feedback{text-align:center;font-size:14px;font-weight:700;min-height:20px;margin-top:8px}
+.feedback.good{color:#16a34a}
+.feedback.bad{color:#dc2626}
+.no-sel{text-align:center;padding:16px;color:#9ca3af;font-size:15px;font-weight:600}
+.complete-panel{background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:18px;text-align:center;margin-bottom:10px}
+.complete-panel h2{font-size:22px;font-weight:900;color:#15803d;margin-bottom:6px}
+.complete-panel p{font-size:14px;color:#166534;margin-bottom:12px}
+.next-btn{background:#22c55e;color:#fff;border:none;border-radius:12px;padding:10px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.next-btn:hover{background:#16a34a}
+.mode-row{display:flex;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.mode-btn{padding:5px 13px;border-radius:20px;border:2px solid transparent;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.mode-btn.m1{background:#fdf4ff;border-color:#d8b4fe;color:#6b21a8}
+.mode-btn.m2{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.mode-btn.m3{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.mode-btn.m4{background:#fffbeb;border-color:#fcd34d;color:#b45309}
+.mode-btn.active{transform:scale(1.08);filter:brightness(.9)}
+.hint{text-align:center;font-size:11px;color:#6b7280;margin-top:4px}
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">中文學習餐廳遊戲，答案全部用圖片，適合6歲</h2>
+<div id="app">
+<div class="resto-bg">
+  <div class="top-bar">
+    <div class="mission-badge" id="missionBadge">🍜 第 1 關</div>
+    <div class="stats">
+      <div class="stat">⭐ <span id="scoreEl">0</span></div>
+      <div class="stat">✅ <span id="servedEl">0</span>/4</div>
+    </div>
+  </div>
+  <div class="mode-row" id="modeRow">
+    <button class="mode-btn m1 active" onclick="setMode('char')">認字</button>
+    <button class="mode-btn m2" onclick="setMode('word')">詞語</button>
+    <button class="mode-btn m3" onclick="setMode('count')">數字</button>
+    <button class="mode-btn m4" onclick="setMode('color')">顏色</button>
+  </div>
+  <div class="floor-label">🪑 餐廳 — 點一位客人為他們服務！</div>
+  <div class="seats-grid" id="seatsGrid"></div>
+  <div id="mathPanel" class="math-panel" style="display:none">
+    <div class="panel-title">📝 選出正確的圖片來上菜！</div>
+    <div class="active-cust" id="activeCust"></div>
+    <div class="question-area">
+      <div class="q-type-badge" id="qTypeBadge"></div>
+      <div class="q-main" id="qMain"></div>
+      <div class="q-pinyin" id="qPinyin"></div>
+    </div>
+    <div class="ans-grid" id="ansGrid"></div>
+    <div class="feedback" id="feedbackEl"></div>
+  </div>
+  <div id="noSelPanel" class="math-panel">
+    <div class="no-sel">👆 點一位客人來為他們服務吧！</div>
+  </div>
+  <div id="completePanel" class="complete-panel" style="display:none">
+    <h2 id="completeTitle"></h2>
+    <p id="completeMsg"></p>
+    <button class="next-btn" onclick="nextMission()">下一關 ➡️</button>
+  </div>
+  <div class="hint" id="hintEl">答對問題，就能把食物送給客人！</div>
+</div>
+</div>
+
+<script>
+const CUSTOMERS=[
+  {name:'小花',emoji:'🐱'},{name:'旺旺',emoji:'🐶'},{name:'跳跳',emoji:'🐸'},
+  {name:'狐狸',emoji:'🦊'},{name:'熊熊',emoji:'🐻'},{name:'獅子',emoji:'🦁'},
+  {name:'貓貓',emoji:'🐼'},{name:'可比',emoji:'🐨'},{name:'獨角獸',emoji:'🦄'},{name:'小兔',emoji:'🐰'}
+];
+const FOODS=[
+  {name:'炒飯',emoji:'🍚'},{name:'麵條',emoji:'🍜'},{name:'包子',emoji:'🥟'},
+  {name:'湯圓',emoji:'🍡'},{name:'蛋糕',emoji:'🎂'},{name:'果汁',emoji:'🍹'},
+  {name:'壽司',emoji:'🍱'},{name:'薯條',emoji:'🍟'},{name:'冰淇淋',emoji:'🍦'},{name:'餅乾',emoji:'🍪'}
+];
+const GOOD_MSG=['答對了！太厲害！🎉','哇，好聰明！⭐','完全正確！🌈','你真的很棒！🥳','太厲害了！✨','答對啦！🚀'];
+const BAD_MSG=['哎呀，再試試看！','不對喔，加油！','差一點，再想想！'];
+
+const QUESTIONS={
+  char:[
+    {q:'「貓」',pinyin:'māo',ans:'🐱',opts:['🐱','🐶','🐦','🐟']},
+    {q:'「狗」',pinyin:'gǒu',ans:'🐶',opts:['🐱','🐶','🐰','🐻']},
+    {q:'「魚」',pinyin:'yú',ans:'🐟',opts:['🍎','🐟','🌸','🚗']},
+    {q:'「花」',pinyin:'huā',ans:'🌸',opts:['🌸','📚','⚽','🎩']},
+    {q:'「書」',pinyin:'shū',ans:'📚',opts:['⚽','📚','🌸','🚗']},
+    {q:'「山」',pinyin:'shān',ans:'🏔️',opts:['🏔️','🌊','☀️','🌙']},
+    {q:'「水」',pinyin:'shuǐ',ans:'💧',opts:['🔥','💧','🌬️','🌱']},
+    {q:'「火」',pinyin:'huǒ',ans:'🔥',opts:['🔥','💧','🧊','❄️']},
+    {q:'「太陽」',pinyin:'tài yáng',ans:'☀️',opts:['🌙','☀️','⭐','☁️']},
+    {q:'「月亮」',pinyin:'yuè liang',ans:'🌙',opts:['☀️','⭐','🌙','☁️']},
+    {q:'「蘋果」',pinyin:'píng guǒ',ans:'🍎',opts:['🍎','🍌','🍇','🍓']},
+    {q:'「香蕉」',pinyin:'xiāng jiāo',ans:'🍌',opts:['🍎','🍌','🍇','🍓']},
+    {q:'「車」',pinyin:'chē',ans:'🚗',opts:['🚗','🚌','✈️','🚢']},
+    {q:'「飛機」',pinyin:'fēi jī',ans:'✈️',opts:['🚗','🚌','✈️','🚢']},
+    {q:'「雨」',pinyin:'yǔ',ans:'🌧️',opts:['☀️','🌧️','❄️','🌈']},
+  ],
+  word:[
+    {q:'哪個是「水果」？',pinyin:'shuǐ guǒ',ans:'🍎',opts:['🍎','🚗','🎒','🪑']},
+    {q:'哪個是「動物」？',pinyin:'dòng wù',ans:'🐰',opts:['🪑','🐰','✏️','🍎']},
+    {q:'哪個是「食物」？',pinyin:'shí wù',ans:'🥟',opts:['🥟','🚗','🎒','🌸']},
+    {q:'哪個是「交通工具」？',pinyin:'jiāo tōng',ans:'🚌',opts:['🚌','🍎','🐱','📚']},
+    {q:'哪個是「玩具」？',pinyin:'wán jù',ans:'🧸',opts:['🍎','🧸','🐟','🎩']},
+    {q:'哪個住在「海裡」？',pinyin:'hǎi lǐ',ans:'🐟',opts:['🐟','🐘','🐦','🦁']},
+    {q:'哪個會「飛」？',pinyin:'huì fēi',ans:'🐦',opts:['🐟','🐘','🐦','🐢']},
+    {q:'哪個是「蔬菜」？',pinyin:'shū cài',ans:'🥕',opts:['🍎','🥕','🍰','🚗']},
+  ],
+  count:[
+    {q:'「一」',pinyin:'yī',ans:'1️⃣',opts:['1️⃣','2️⃣','3️⃣','4️⃣']},
+    {q:'「二」',pinyin:'èr',ans:'2️⃣',opts:['1️⃣','2️⃣','3️⃣','4️⃣']},
+    {q:'「三」',pinyin:'sān',ans:'3️⃣',opts:['1️⃣','2️⃣','3️⃣','4️⃣']},
+    {q:'「四」',pinyin:'sì',ans:'4️⃣',opts:['3️⃣','4️⃣','5️⃣','6️⃣']},
+    {q:'「五」',pinyin:'wǔ',ans:'5️⃣',opts:['3️⃣','4️⃣','5️⃣','6️⃣']},
+    {q:'「六」',pinyin:'liù',ans:'6️⃣',opts:['5️⃣','6️⃣','7️⃣','8️⃣']},
+    {q:'「七」',pinyin:'qī',ans:'7️⃣',opts:['5️⃣','6️⃣','7️⃣','8️⃣']},
+    {q:'「八」',pinyin:'bā',ans:'8️⃣',opts:['7️⃣','8️⃣','9️⃣','🔟']},
+    {q:'「九」',pinyin:'jiǔ',ans:'9️⃣',opts:['7️⃣','8️⃣','9️⃣','🔟']},
+    {q:'「十」',pinyin:'shí',ans:'🔟',opts:['7️⃣','8️⃣','9️⃣','🔟']},
+  ],
+  color:[
+    {q:'「紅色」',pinyin:'hóng sè',ans:'🔴',opts:['🔴','🔵','🟢','🟡']},
+    {q:'「藍色」',pinyin:'lán sè',ans:'🔵',opts:['🔴','🔵','🟢','🟡']},
+    {q:'「黃色」',pinyin:'huáng sè',ans:'🟡',opts:['🔴','🔵','🟢','🟡']},
+    {q:'「綠色」',pinyin:'lǜ sè',ans:'🟢',opts:['🔴','🔵','🟢','🟡']},
+    {q:'「白色」',pinyin:'bái sè',ans:'⬜',opts:['⬜','⬛','🟠','🟣']},
+    {q:'「黑色」',pinyin:'hēi sè',ans:'⬛',opts:['⬜','⬛','🟠','🟣']},
+    {q:'「橙色」',pinyin:'chéng sè',ans:'🟠',opts:['⬜','⬛','🟠','🟣']},
+    {q:'「紫色」',pinyin:'zǐ sè',ans:'🟣',opts:['⬜','⬛','🟠','🟣']},
+  ]
+};
+const TYPE_LABELS={char:'認字',word:'詞語',count:'數字',color:'顏色'};
+
+let mode='char',mission=1,score=0;
+let seats=[],activeSeat=null,locked=false,pTimers=[];
+
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[ri(0,arr.length-1)];}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  const idx={char:0,word:1,count:2,color:3}[m];
+  document.querySelectorAll('.mode-btn')[idx].classList.add('active');
+  initMission();
+}
+
+function pickQuestion(){return Object.assign({},pick(QUESTIONS[mode]));}
+
+function initMission(){
+  pTimers.forEach(t=>clearInterval(t));
+  pTimers=[];activeSeat=null;locked=false;
+  const custs=shuffle([...CUSTOMERS]).slice(0,4);
+  seats=custs.map((c,i)=>({id:i,customer:c,food:pick(FOODS),question:pickQuestion(),patience:100,served:false,failed:false}));
+  document.getElementById('missionBadge').textContent=`🍜 第 ${mission} 關`;
+  document.getElementById('scoreEl').textContent=score;
+  document.getElementById('servedEl').textContent='0/4';
+  document.getElementById('completePanel').style.display='none';
+  document.getElementById('mathPanel').style.display='none';
+  document.getElementById('noSelPanel').style.display='block';
+  document.getElementById('hintEl').style.display='block';
+  renderSeats();startPatience();
+}
+
+function renderSeats(){
+  const grid=document.getElementById('seatsGrid');
+  grid.innerHTML='';
+  seats.forEach(s=>{
+    const div=document.createElement('div');
+    let cls='seat';
+    if(s.served)cls+=' served';
+    else if(activeSeat===s.id)cls+=' active';
+    else if(!s.failed&&s.patience<25)cls+=' angry';
+    div.className=cls;
+    div.onclick=()=>selectSeat(s.id);
+    if(s.served){
+      div.innerHTML=`<div class="served-check">✅</div>
+        <div class="seat-header"><div class="char-emoji">${s.customer.emoji}</div>
+        <div><div class="char-name">${s.customer.name}</div><div style="font-size:11px;color:#16a34a;font-weight:700">已上菜 😊</div></div></div>
+        <div class="order-bubble"><span style="font-size:18px">${s.food.emoji}</span>${s.food.name}送到囉！</div>`;
+    } else if(s.failed){
+      div.style.cursor='default';
+      div.innerHTML=`<div class="seat-header"><div class="char-emoji" style="opacity:.35">${s.customer.emoji}</div>
+        <div><div class="char-name" style="color:#9ca3af">${s.customer.name}</div>
+        <div style="font-size:11px;color:#ef4444;font-weight:700">已離開 😢</div></div></div>`;
+    } else {
+      const pct=Math.max(0,s.patience);
+      const bc=pct>60?'':pct>30?' mid':' low';
+      div.innerHTML=`<div class="seat-header"><div class="char-emoji">${s.customer.emoji}</div>
+        <div class="char-info"><div class="char-name">${s.customer.name}</div>
+        <div class="patience-bar-wrap"><div class="patience-bar${bc}" style="width:${pct}%"></div></div></div></div>
+        <div class="order-bubble"><span style="font-size:18px">${s.food.emoji}</span>請給我${s.food.name}！</div>`;
+    }
+    grid.appendChild(div);
+  });
+}
+
+function startPatience(){
+  seats.forEach(s=>{
+    const t=setInterval(()=>{
+      if(s.served){clearInterval(t);return;}
+      s.patience=Math.max(0,s.patience-1);
+      renderSeats();
+      if(s.patience===0){
+        clearInterval(t);s.failed=true;
+        if(activeSeat===s.id)deselect();
+        document.getElementById('hintEl').textContent=`${s.customer.name}等太久走掉了！😢 下次要快一點喔！`;
+        checkAllDone();
+      }
+    },900);
+    pTimers.push(t);
+  });
+}
+
+function selectSeat(id){
+  const s=seats[id];
+  if(s.served||s.patience<=0||s.failed)return;
+  activeSeat=id;locked=false;
+  renderSeats();showPanel(s);
+}
+
+function deselect(){
+  activeSeat=null;
+  document.getElementById('mathPanel').style.display='none';
+  document.getElementById('noSelPanel').style.display='block';
+  renderSeats();
+}
+
+function showPanel(s){
+  document.getElementById('noSelPanel').style.display='none';
+  document.getElementById('mathPanel').style.display='block';
+  document.getElementById('feedbackEl').textContent='';
+  document.getElementById('feedbackEl').className='feedback';
+  document.getElementById('activeCust').innerHTML=`<div class="char">${s.customer.emoji}</div>
+    <div><div class="says">${s.customer.name} 想要 ${s.food.emoji} ${s.food.name}！</div>
+    <div style="font-size:11px;color:#6b7280;font-weight:600">選出正確的圖片才能上菜 🍽️</div></div>`;
+  document.getElementById('qTypeBadge').textContent=TYPE_LABELS[mode];
+  document.getElementById('qMain').textContent=s.question.q;
+  document.getElementById('qPinyin').textContent=s.question.pinyin||'';
+  const opts=shuffle([...s.question.opts]);
+  const grid=document.getElementById('ansGrid');
+  grid.innerHTML='';
+  opts.forEach((v,i)=>{
+    const btn=document.createElement('button');
+    btn.className='ans-btn';
+    btn.innerHTML=`<span class="big-emoji">${v}</span>`;
+    btn.onclick=()=>checkAnswer(btn,v,s);
+    grid.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn,val,s){
+  if(locked)return;locked=true;
+  if(val===s.question.ans){
+    btn.classList.add('correct');
+    document.getElementById('feedbackEl').textContent=pick(GOOD_MSG);
+    document.getElementById('feedbackEl').className='feedback good';
+    setTimeout(()=>{
+      s.served=true;score+=s.patience>60?3:s.patience>30?2:1;
+      document.getElementById('scoreEl').textContent=score;
+      document.getElementById('servedEl').textContent=`${seats.filter(x=>x.served).length}/4`;
+      deselect();checkAllDone();
+    },900);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.ans-btn').forEach(b=>{if(b.querySelector('.big-emoji').textContent===s.question.ans)b.classList.add('correct');});
+    document.getElementById('feedbackEl').textContent=pick(BAD_MSG);
+    document.getElementById('feedbackEl').className='feedback bad';
+    setTimeout(()=>{
+      locked=false;
+      document.querySelectorAll('.ans-btn').forEach(b=>b.classList.remove('correct','wrong'));
+      document.getElementById('feedbackEl').textContent='';
+    },1300);
+  }
+}
+
+function checkAllDone(){
+  if(!seats.every(s=>s.served||s.failed||s.patience<=0))return;
+  pTimers.forEach(t=>clearInterval(t));
+  const n=seats.filter(s=>s.served).length;
+  document.getElementById('mathPanel').style.display='none';
+  document.getElementById('noSelPanel').style.display='none';
+  document.getElementById('hintEl').style.display='none';
+  const title=document.getElementById('completeTitle');
+  const msg=document.getElementById('completeMsg');
+  if(n===4){title.textContent='🎉 全部上菜！太棒了！';msg.textContent=`你幫所有客人都上菜了！真厲害！⭐ 共 ${score} 顆星`;}
+  else if(n>=2){title.textContent='👏 完成這一關！';msg.textContent=`你幫了 ${n} 位客人，做得很好！⭐ 共 ${score} 顆星`;}
+  else{title.textContent='😅 繼續加油！';msg.textContent=`這次幫了 ${n} 位客人，下一關加油！⭐ 共 ${score} 顆星`;}
+  document.getElementById('completePanel').style.display='block';
+}
+
+function nextMission(){mission++;initMission();}
+initMission();
+</script>
